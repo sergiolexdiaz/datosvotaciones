@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Envío Masivo WhatsApp</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>📱 Envío Masivo de WhatsApp</h1>
+
+  <form id="formulario">
+    <label>Selecciona archivo Excel (.xlsx):</label>
+    <input type="file" id="archivoExcel" accept=".xlsx" required />
+
+    <label>Mensaje base:</label>
+    <textarea id="mensaje" placeholder="Ej: Hola {nombre}, te escribe de parte del profesor {profesor}" required></textarea>
+
+    <button type="submit">Enviar Mensajes</button>
+  </form>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
