@@ -1,50 +1,64 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🎟️ Control de Boletas</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Control Boletas — Panel (Con formulario)</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>🎟️ Control de Boletas</h1>
-    <p>Panel de registro — Boletas del 1 al 1000</p>
-  </header>
+  <main class="container">
+    <header class="top">
+      <h1>Control Boletas</h1>
+      <p class="sub">Panel de control — acceso protegido</p>
+    </header>
 
-  <section class="stats">
-    <div class="card"><h2 id="compradas">0</h2><p>Compradas</p></div>
-    <div class="card"><h2 id="regaladas">0</h2><p>Regaladas</p></div>
-    <div class="card"><h2 id="debe">0</h2><p>Debe</p></div>
-    <div class="card total"><h2 id="total">0</h2><p>Total ($)</p></div>
-  </section>
+    <div id="login" class="card login-card">
+      <h3>Ingrese la clave de acceso</h3>
+      <input id="accessKey" type="password" placeholder="Clave"/>
+      <button id="btnLogin">Entrar</button>
+      <p class="muted">Clave: <code>controlSergio2025</code></p>
+    </div>
 
-  <section class="busqueda">
-    <input type="text" id="buscador" placeholder="🔍 Buscar por nombre, número o teléfono..." />
-  </section>
+    <div id="app" style="display:none;">
+      <section class="form-card">
+        <h2>Registrar / Editar boleta</h2>
+        <form id="formBoleta">
+          <label>N° Boleta <input id="numBoleta" type="number" min="1" max="1000" required></label>
+          <label>Vendedor <input id="vendedor" type="text"></label>
+          <label>Grupo <input id="grupo" type="text"></label>
+          <label>Nombre del cliente <input id="cliente" type="text"></label>
+          <label>Teléfono <input id="telefono" type="tel"></label>
+          <label>Estado
+            <select id="estado">
+              <option value="Pagó">Pagó</option>
+              <option value="Debe">Debe</option>
+              <option value="Regalada">Regalada</option>
+            </select>
+          </label>
+          <label>Valor <input id="valor" type="number" value="50000" required></label>
+          <label>Observaciones <input id="obs" type="text"></label>
+          <div class="actions">
+            <button id="btnGuardar" type="submit">Guardar boleta</button>
+            <button id="btnDescargar" type="button">Descargar Excel</button>
+          </div>
+        </form>
+        <div id="status" class="muted"></div>
+      </section>
 
-  <section class="tabla">
-    <table id="tablaBoletas">
-      <thead>
-        <tr>
-          <th>N° Boleta</th>
-          <th>Nombre</th>
-          <th>Teléfono</th>
-          <th>Estado</th>
-          <th>Valor</th>
-        </tr>
-      </thead>
-      <tbody id="tablaCuerpo">
-        <tr><td colspan="5">Cargando datos...</td></tr>
-      </tbody>
-    </table>
-  </section>
+      <section class="table-wrap">
+        <h3>Lista actual (desde repo)</h3>
+        <button id="btnRefresh">Actualizar vista</button>
+        <div id="tablaCont"></div>
+      </section>
+    </div>
 
-  <footer>
-    <p>© 2025 — Creado por Sergio Díaz | Valor boleta: $50.000</p>
-  </footer>
+    <footer class="footer">
+      <small>Repo: <a href="https://github.com/sergiolexdiaz/datosvotaciones" target="_blank">sergiolexdiaz/datosvotaciones</a></small>
+    </footer>
+  </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

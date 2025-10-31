@@ -1,96 +1,18 @@
-/* 🌑 Estilo oscuro futurista */
-body {
-  background-color: #0a0a0f;
-  color: #e0e0e0;
-  font-family: 'Segoe UI', sans-serif;
-  margin: 0;
-  padding: 0;
-  text-align: center;
+:root{
+  --bg:#08080b; --panel:#0f1115; --muted:#9aa6b2; --accent:#06f7d9; --accent2:#3ad1ff;
+  font-family: "Inter", "Segoe UI", Roboto, Arial, sans-serif;
 }
-
-header {
-  padding: 20px;
-  background: linear-gradient(90deg, #00ffcc, #0066ff);
-  color: #0a0a0f;
-  box-shadow: 0 0 20px #00ffcc;
-}
-
-h1 {
-  font-size: 2.2rem;
-  margin-bottom: 5px;
-}
-
-.stats {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 15px;
-  margin: 20px 0;
-}
-
-.card {
-  background-color: #1a1a22;
-  border: 1px solid #00ffcc;
-  border-radius: 10px;
-  padding: 15px;
-  width: 150px;
-  box-shadow: 0 0 10px #00ffcc55;
-}
-
-.card.total {
-  background-color: #002233;
-  border-color: #00ffff;
-}
-
-.card h2 {
-  font-size: 1.8rem;
-  color: #00ffff;
-}
-
-.busqueda {
-  margin: 20px;
-}
-
-#buscador {
-  padding: 10px;
-  width: 300px;
-  border-radius: 5px;
-  border: none;
-  background-color: #1a1a22;
-  color: #fff;
-  outline: none;
-  box-shadow: 0 0 10px #00ffcc55;
-}
-
-table {
-  width: 90%;
-  margin: auto;
-  border-collapse: collapse;
-  background-color: #111;
-  color: #ccc;
-  box-shadow: 0 0 15px #00ffcc33;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-th, td {
-  padding: 10px;
-  border-bottom: 1px solid #00ffcc33;
-}
-
-th {
-  background-color: #00ffcc22;
-  color: #00ffff;
-  text-transform: uppercase;
-}
-
-tr:hover {
-  background-color: #00334466;
-}
-
-footer {
-  margin-top: 30px;
-  padding: 15px;
-  font-size: 0.9rem;
-  color: #888;
-}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:#cfeef6}
+.container{max-width:900px;margin:24px auto;padding:18px;background:#0b0d11;border-radius:10px}
+.top h1{color:var(--accent2);margin:0}
+.card, .form-card{background:#0f1115;padding:14px;border-radius:8px;margin:12px 0;border:1px solid rgba(58,209,255,0.04)}
+.login-card input{padding:8px;margin-right:8px}
+label{display:block;margin:8px 0}
+input, select{padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.04);width:100%}
+.actions{display:flex;gap:8px;margin-top:8px}
+button{padding:8px 12px;border-radius:6px;border:none;cursor:pointer}
+#btnGuardar{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#021019}
+.table-wrap{margin-top:12px;background:#071014;padding:10px;border-radius:8px}
+.muted{color:var(--muted);font-size:13px}
+.footer{margin-top:12px;color:var(--muted);font-size:13px}
