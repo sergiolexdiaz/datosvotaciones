@@ -1,35 +1,225 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Control de Boletas</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>📋 Sistema de Boletas con Excel Diario</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    body { padding-top: 28px; background:#f7f9fc; }
+    .hidden { display:none !important; }
+    table td, table th { vertical-align: middle; }
+  </style>
 </head>
 <body>
-  <h1>Control de Boletas</h1>
+  <div class="container">
+    <h2 class="text-center mb-3">📊 Sistema de Boletas (con Excel diario)</h2>
 
-  <label>Clave de acceso</label>
-  <input type="password" id="accessKey" placeholder="Clave">
-  <button id="loginBtn">Entrar</button>
+    <!-- LOGIN -->
+    <div id="loginBox" class="card p-3 mb-3">
+      <div class="row g-2 align-items-center">
+        <div class="col-auto">
+          <input id="accessKey" class="form-control" placeholder="Clave de acceso">
+        </div>
+        <div class="col-auto">
+          <button id="loginBtn" class="btn btn-primary">Entrar</button>
+        </div>
+        <div class="col-auto">
+          <small class="text-muted">Clave: <b>controlSergio2025</b></small>
+        </div>
+      </div>
+    </div>
 
-  <div id="formulario" style="display:none;">
-    <label>Numero de boleta</label>
-    <input type="number" id="numero">
-    <label>Nombre del cliente</label>
-    <input type="text" id="cliente">
-    <label>Vendedor</label>
-    <input type="text" id="vendedor">
-    <label>Grupo</label>
-    <input type="text" id="grupo">
-    <label>Telefono</label>
-    <input type="text" id="telefono">
-    <label>Estado (Pagada / Debe / Regalada)</label>
-    <input type="text" id="estado">
-    <label>Valor</label>
-    <input type="number" id="valor" value="50000">
-    <button id="guardar">Guardar Boleta</button>
+    <!-- APP -->
+    <div id="app" class="hidden">
+      <div class="row">
+        <div class="col-lg-6">
+          <div class="card p-3 mb-3">
+            <h5>Registrar Boleta</h5>
+            <form id="boletaForm" autocomplete="off">
+              <div class="row mb-2">
+                <div class="col-6">
+                  <label class="form-label">N° Boleta</label>
+                  <input id="numero" class="form-control" required>
+                </div>
+                <div class="col-6">
+                  <label class="form-label">Cliente</label>
+                  <input id="cliente" class="form-control" required>
+                </div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-6">
+                  <label class="form-label">Vendedor</label>
+                  <input id="vendedor" class="form-control">
+                </div>
+                <div class="col-6">
+                  <label class="form-label">Grupo</label>
+                  <input id="grupo" class="form-control">
+                </div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-6">
+                  <label class="form-label">Teléfono</label>
+                  <input id="telefono" class="form-control">
+                </div>
+                <div class="col-6">
+                  <label class="form-label">Estado</label>
+                  <select id="estado" class="form-select">
+                    <option>Pendiente</option>
+                    <option>Pagada</option>
+                    <option>Anulada</option>
+                  </select>
+                </div>
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Valor</label>
+                <input id="valor" type="number" class="form-control">
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Observaciones</label>
+                <input id="observaciones" class="form-control">
+              </div>
+              <div class="d-flex gap-2 mt-3">
+                <button type="submit" class="btn btn-success">💾 Guardar</button>
+                <button type="button" id="descargarExcel" class="btn btn-outline-primary">⬇️ Descargar Excel</button>
+                <button type="button" id="borrarTodo" class="btn btn-outline-danger">🗑️ Borrar Todo</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card p-3 mb-3">
+            <h5>Boletas Registradas</h5>
+            <div class="table-responsive" style="max-height:500px; overflow:auto;">
+              <table id="tablaBoletas" class="table table-striped table-sm">
+                <thead class="table-light">
+                  <tr>
+                    <th>N°</th>
+                    <th>Cliente</th>
+                    <th>Vendedor</th>
+                    <th>Grupo</th>
+                    <th>Teléfono</th>
+                    <th>Estado</th>
+                    <th>Valor</th>
+                    <th>Fecha</th>
+                    <th>Obs</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    const CLAVE = "controlSergio2025";
+    const STORAGE_KEY = "boletas_local";
+
+    const loginBox = document.getElementById("loginBox");
+    const app = document.getElementById("app");
+    const loginBtn = document.getElementById("loginBtn");
+    const accessKey = document.getElementById("accessKey");
+    const form = document.getElementById("boletaForm");
+    const tablaBody = document.querySelector("#tablaBoletas tbody");
+    const btnDescargar = document.getElementById("descargarExcel");
+    const btnBorrar = document.getElementById("borrarTodo");
+
+    // Autenticación simple
+    loginBtn.onclick = () => {
+      if (accessKey.value === CLAVE) {
+        loginBox.classList.add("hidden");
+        app.classList.remove("hidden");
+        renderTabla();
+      } else alert("Clave incorrecta ❌");
+    };
+
+    accessKey.addEventListener("keyup", (e) => { if (e.key === "Enter") loginBtn.click(); });
+
+    // Leer y guardar datos en localStorage
+    const leer = () => JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    const guardar = (arr) => localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+
+    function renderTabla() {
+      const data = leer();
+      tablaBody.innerHTML = "";
+      if (data.length === 0) {
+        tablaBody.innerHTML = '<tr><td colspan="10" class="text-center text-muted">Sin boletas</td></tr>';
+        return;
+      }
+      data.forEach((b, i) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${b.numero}</td><td>${b.cliente}</td><td>${b.vendedor}</td>
+          <td>${b.grupo}</td><td>${b.telefono}</td><td>${b.estado}</td>
+          <td>${b.valor}</td><td>${b.fecha}</td><td>${b.observaciones}</td>
+          <td>
+            <button class='btn btn-sm btn-outline-danger' onclick='eliminar(${i})'>🗑️</button>
+          </td>`;
+        tablaBody.appendChild(tr);
+      });
+    }
+
+    // Guardar Boleta
+    form.onsubmit = (e) => {
+      e.preventDefault();
+      const f = form;
+      const nueva = {
+        numero: f.numero.value.trim(),
+        cliente: f.cliente.value.trim(),
+        vendedor: f.vendedor.value.trim(),
+        grupo: f.grupo.value.trim(),
+        telefono: f.telefono.value.trim(),
+        estado: f.estado.value,
+        valor: f.valor.value,
+        observaciones: f.observaciones.value.trim(),
+        fecha: new Date().toLocaleString()
+      };
+      if (!nueva.numero || !nueva.cliente) return alert("Número y cliente son obligatorios");
+      const arr = leer();
+      const idx = arr.findIndex(x => x.numero === nueva.numero);
+      if (idx > -1) arr[idx] = nueva; else arr.push(nueva);
+      guardar(arr);
+      renderTabla();
+      generarExcel(arr); // genera Excel automáticamente
+      f.reset();
+      alert("✅ Boleta guardada y Excel diario generado");
+    };
+
+    // Eliminar fila
+    function eliminar(i) {
+      if (!confirm("¿Eliminar esta boleta?")) return;
+      const arr = leer();
+      arr.splice(i, 1);
+      guardar(arr);
+      renderTabla();
+    }
+
+    // Generar Excel con nombre según fecha actual
+    function generarExcel(data = leer()) {
+      if (data.length === 0) return alert("No hay datos para exportar");
+      const hoja = XLSX.utils.json_to_sheet(data);
+      const libro = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(libro, hoja, "Boletas");
+
+      const fecha = new Date().toISOString().split("T")[0]; // yyyy-mm-dd
+      const nombreArchivo = `boletas_${fecha}.xlsx`;
+
+      XLSX.writeFile(libro, nombreArchivo);
+    }
+
+    btnDescargar.onclick = () => generarExcel();
+    btnBorrar.onclick = () => {
+      if (confirm("¿Borrar todos los registros?")) {
+        localStorage.removeItem(STORAGE_KEY);
+        renderTabla();
+      }
+    };
+  </script>
 </body>
 </html>
