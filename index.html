@@ -1,64 +1,35 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Control Boletas — Panel (Con formulario)</title>
+  <meta charset="UTF-8">
+  <title>Control de Boletas</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main class="container">
-    <header class="top">
-      <h1>Control Boletas</h1>
-      <p class="sub">Panel de control — acceso protegido</p>
-    </header>
+  <h1>Control de Boletas</h1>
 
-    <div id="login" class="card login-card">
-      <h3>Ingrese la clave de acceso</h3>
-      <input id="accessKey" type="password" placeholder="Clave"/>
-      <button id="btnLogin">Entrar</button>
-      <p class="muted">Clave: <code>controlSergio2025</code></p>
-    </div>
+  <label>Clave de acceso</label>
+  <input type="password" id="accessKey" placeholder="Clave">
+  <button id="loginBtn">Entrar</button>
 
-    <div id="app" style="display:none;">
-      <section class="form-card">
-        <h2>Registrar / Editar boleta</h2>
-        <form id="formBoleta">
-          <label>N° Boleta <input id="numBoleta" type="number" min="1" max="1000" required></label>
-          <label>Vendedor <input id="vendedor" type="text"></label>
-          <label>Grupo <input id="grupo" type="text"></label>
-          <label>Nombre del cliente <input id="cliente" type="text"></label>
-          <label>Teléfono <input id="telefono" type="tel"></label>
-          <label>Estado
-            <select id="estado">
-              <option value="Pagó">Pagó</option>
-              <option value="Debe">Debe</option>
-              <option value="Regalada">Regalada</option>
-            </select>
-          </label>
-          <label>Valor <input id="valor" type="number" value="50000" required></label>
-          <label>Observaciones <input id="obs" type="text"></label>
-          <div class="actions">
-            <button id="btnGuardar" type="submit">Guardar boleta</button>
-            <button id="btnDescargar" type="button">Descargar Excel</button>
-          </div>
-        </form>
-        <div id="status" class="muted"></div>
-      </section>
+  <div id="formulario" style="display:none;">
+    <label>Numero de boleta</label>
+    <input type="number" id="numero">
+    <label>Nombre del cliente</label>
+    <input type="text" id="cliente">
+    <label>Vendedor</label>
+    <input type="text" id="vendedor">
+    <label>Grupo</label>
+    <input type="text" id="grupo">
+    <label>Telefono</label>
+    <input type="text" id="telefono">
+    <label>Estado (Pagada / Debe / Regalada)</label>
+    <input type="text" id="estado">
+    <label>Valor</label>
+    <input type="number" id="valor" value="50000">
+    <button id="guardar">Guardar Boleta</button>
+  </div>
 
-      <section class="table-wrap">
-        <h3>Lista actual (desde repo)</h3>
-        <button id="btnRefresh">Actualizar vista</button>
-        <div id="tablaCont"></div>
-      </section>
-    </div>
-
-    <footer class="footer">
-      <small>Repo: <a href="https://github.com/sergiolexdiaz/datosvotaciones" target="_blank">sergiolexdiaz/datosvotaciones</a></small>
-    </footer>
-  </main>
-
-  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
