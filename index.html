@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>📋 Sistema de Boletas con Excel Diario</title>
+  <title>📋 Sistema de Boletas (con Total Automático)</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
@@ -14,7 +14,7 @@
 </head>
 <body>
   <div class="container">
-    <h2 class="text-center mb-3">📊 Sistema de Boletas (con Excel diario)</h2>
+    <h2 class="text-center mb-3">📊 Sistema de Boletas (con Total Automático)</h2>
 
     <!-- LOGIN -->
     <div id="loginBox" class="card p-3 mb-3">
@@ -38,31 +38,32 @@
           <div class="card p-3 mb-3">
             <h5>Registrar Boleta</h5>
             <form id="boletaForm" autocomplete="off">
+              <div class="mb-2">
+                <label class="form-label">N° Boleta(s)</label>
+                <input id="numero" class="form-control" required placeholder="Ejemplo: 1001 o 1001,1002,1003">
+                <small class="text-muted">Puedes escribir varias separadas por coma (,)</small>
+              </div>
               <div class="row mb-2">
-                <div class="col-6">
-                  <label class="form-label">N° Boleta</label>
-                  <input id="numero" class="form-control" required>
-                </div>
                 <div class="col-6">
                   <label class="form-label">Cliente</label>
                   <input id="cliente" class="form-control" required>
                 </div>
-              </div>
-              <div class="row mb-2">
                 <div class="col-6">
                   <label class="form-label">Vendedor</label>
                   <input id="vendedor" class="form-control">
                 </div>
+              </div>
+              <div class="row mb-2">
                 <div class="col-6">
                   <label class="form-label">Grupo</label>
                   <input id="grupo" class="form-control">
                 </div>
-              </div>
-              <div class="row mb-2">
                 <div class="col-6">
                   <label class="form-label">Teléfono</label>
                   <input id="telefono" class="form-control">
                 </div>
+              </div>
+              <div class="row mb-2">
                 <div class="col-6">
                   <label class="form-label">Estado</label>
                   <select id="estado" class="form-select">
@@ -71,10 +72,10 @@
                     <option>Anulada</option>
                   </select>
                 </div>
-              </div>
-              <div class="mb-2">
-                <label class="form-label">Valor</label>
-                <input id="valor" type="number" class="form-control">
+                <div class="col-6">
+                  <label class="form-label">Valor unitario</label>
+                  <input id="valor" type="number" class="form-control" placeholder="Ej: 20000">
+                </div>
               </div>
               <div class="mb-2">
                 <label class="form-label">Observaciones</label>
@@ -103,6 +104,7 @@
                     <th>Teléfono</th>
                     <th>Estado</th>
                     <th>Valor</th>
+                    <th>Total</th>
                     <th>Fecha</th>
                     <th>Obs</th>
                     <th>Acciones</th>
@@ -130,7 +132,7 @@
     const btnDescargar = document.getElementById("descargarExcel");
     const btnBorrar = document.getElementById("borrarTodo");
 
-    // Autenticación simple
+    // LOGIN
     loginBtn.onclick = () => {
       if (accessKey.value === CLAVE) {
         loginBox.classList.add("hidden");
@@ -138,18 +140,18 @@
         renderTabla();
       } else alert("Clave incorrecta ❌");
     };
+    accessKey.addEventListener("keyup", e => { if (e.key === "Enter") loginBtn.click(); });
 
-    accessKey.addEventListener("keyup", (e) => { if (e.key === "Enter") loginBtn.click(); });
-
-    // Leer y guardar datos en localStorage
+    // LocalStorage helpers
     const leer = () => JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
     const guardar = (arr) => localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
 
+    // Render tabla
     function renderTabla() {
       const data = leer();
       tablaBody.innerHTML = "";
       if (data.length === 0) {
-        tablaBody.innerHTML = '<tr><td colspan="10" class="text-center text-muted">Sin boletas</td></tr>';
+        tablaBody.innerHTML = '<tr><td colspan="11" class="text-center text-muted">Sin boletas</td></tr>';
         return;
       }
       data.forEach((b, i) => {
@@ -157,41 +159,49 @@
         tr.innerHTML = `
           <td>${b.numero}</td><td>${b.cliente}</td><td>${b.vendedor}</td>
           <td>${b.grupo}</td><td>${b.telefono}</td><td>${b.estado}</td>
-          <td>${b.valor}</td><td>${b.fecha}</td><td>${b.observaciones}</td>
-          <td>
-            <button class='btn btn-sm btn-outline-danger' onclick='eliminar(${i})'>🗑️</button>
-          </td>`;
+          <td>${b.valor}</td><td>${b.total}</td>
+          <td>${b.fecha}</td><td>${b.observaciones}</td>
+          <td><button class='btn btn-sm btn-outline-danger' onclick='eliminar(${i})'>🗑️</button></td>
+        `;
         tablaBody.appendChild(tr);
       });
     }
 
-    // Guardar Boleta
+    // Guardar múltiples boletas
     form.onsubmit = (e) => {
       e.preventDefault();
       const f = form;
-      const nueva = {
-        numero: f.numero.value.trim(),
-        cliente: f.cliente.value.trim(),
-        vendedor: f.vendedor.value.trim(),
-        grupo: f.grupo.value.trim(),
-        telefono: f.telefono.value.trim(),
-        estado: f.estado.value,
-        valor: f.valor.value,
-        observaciones: f.observaciones.value.trim(),
-        fecha: new Date().toLocaleString()
-      };
-      if (!nueva.numero || !nueva.cliente) return alert("Número y cliente son obligatorios");
+      const numeros = f.numero.value.split(",").map(n => n.trim()).filter(Boolean);
+      if (numeros.length === 0) return alert("Debes ingresar al menos una boleta.");
+
       const arr = leer();
-      const idx = arr.findIndex(x => x.numero === nueva.numero);
-      if (idx > -1) arr[idx] = nueva; else arr.push(nueva);
+      const valorUnit = parseFloat(f.valor.value || 0);
+      const total = valorUnit * numeros.length;
+
+      numeros.forEach(num => {
+        const nueva = {
+          numero: num,
+          cliente: f.cliente.value.trim(),
+          vendedor: f.vendedor.value.trim(),
+          grupo: f.grupo.value.trim(),
+          telefono: f.telefono.value.trim(),
+          estado: f.estado.value,
+          valor: valorUnit.toFixed(2),
+          total: total.toFixed(2),
+          observaciones: f.observaciones.value.trim(),
+          fecha: new Date().toLocaleString()
+        };
+        const idx = arr.findIndex(x => x.numero === nueva.numero);
+        if (idx > -1) arr[idx] = nueva; else arr.push(nueva);
+      });
+
       guardar(arr);
       renderTabla();
-      generarExcel(arr); // genera Excel automáticamente
       f.reset();
-      alert("✅ Boleta guardada y Excel diario generado");
+      alert("✅ Boletas guardadas correctamente");
     };
 
-    // Eliminar fila
+    // Eliminar una
     function eliminar(i) {
       if (!confirm("¿Eliminar esta boleta?")) return;
       const arr = leer();
@@ -200,17 +210,13 @@
       renderTabla();
     }
 
-    // Generar Excel con nombre según fecha actual
+    // Descargar Excel
     function generarExcel(data = leer()) {
       if (data.length === 0) return alert("No hay datos para exportar");
       const hoja = XLSX.utils.json_to_sheet(data);
       const libro = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(libro, hoja, "Boletas");
-
-      const fecha = new Date().toISOString().split("T")[0]; // yyyy-mm-dd
-      const nombreArchivo = `boletas_${fecha}.xlsx`;
-
-      XLSX.writeFile(libro, nombreArchivo);
+      XLSX.writeFile(libro, "boletas_registradas.xlsx");
     }
 
     btnDescargar.onclick = () => generarExcel();
