@@ -1,6 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
   // 🔑 Tu token directo (NO lo compartas públicamente)
   const token = "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";
+  const repoOwner = "sergiolexdiaz";
+  const repoName = "datosvotaciones";
+  const filePath = "boletas.json";
+  const branch = "main";
 
   // Login simple
   document.getElementById("loginBtn").addEventListener("click", () => {
@@ -24,29 +28,45 @@ document.addEventListener("DOMContentLoaded", () => {
       valor: document.getElementById("valor").value
     };
 
-    // Convertir boleta a base64 para GitHub API
-    const content = btoa(JSON.stringify(boleta));
+    const content = btoa(JSON.stringify([boleta])); // Se guarda como array para futuras boletas
 
     try {
-      const response = await fetch("https://api.github.com/repos/sergiolexdiaz/datosvotaciones/contents/boletas.json", {
+      // 1️⃣ Ver si el archivo ya existe para obtener su SHA
+      let sha = null;
+      const getResp = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}?ref=${branch}`, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if(getResp.ok) {
+        const data = await getResp.json();
+        sha = data.sha; // si existe, obtenemos SHA para actualizar
+      }
+
+      // 2️⃣ Subir o actualizar archivo
+      const putResp = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`, {
         method: "PUT",
         headers: {
-          "Authorization": `token ${token}`,
+          "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
           message: `Agregar boleta #${boleta.numero}`,
           content: content,
-          branch: "main"
+          sha: sha, // null si es nuevo
+          branch: branch
         })
       });
 
-      if(response.ok) {
+      if(putResp.ok) {
         alert("Boleta guardada en GitHub correctamente ✅");
       } else {
-        const error = await response.json();
+        const error = await putResp.json();
         alert("Error al guardar: " + error.message);
       }
+
     } catch(err) {
       alert("Error de red: " + err.message);
     }
