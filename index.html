@@ -3,23 +3,48 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Envío Masivo WhatsApp</title>
+  <title>🎟️ Control de Boletas</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
-  <h1>📱 Envío Masivo de WhatsApp</h1>
+  <header>
+    <h1>🎟️ Control de Boletas</h1>
+    <p>Panel de registro — Boletas del 1 al 1000</p>
+  </header>
 
-  <form id="formulario">
-    <label>Selecciona archivo Excel (.xlsx):</label>
-    <input type="file" id="archivoExcel" accept=".xlsx" required />
+  <section class="stats">
+    <div class="card"><h2 id="compradas">0</h2><p>Compradas</p></div>
+    <div class="card"><h2 id="regaladas">0</h2><p>Regaladas</p></div>
+    <div class="card"><h2 id="debe">0</h2><p>Debe</p></div>
+    <div class="card total"><h2 id="total">0</h2><p>Total ($)</p></div>
+  </section>
 
-    <label>Mensaje base:</label>
-    <textarea id="mensaje" placeholder="Ej: Hola {nombre}, te escribe de parte del profesor {profesor}" required></textarea>
+  <section class="busqueda">
+    <input type="text" id="buscador" placeholder="🔍 Buscar por nombre, número o teléfono..." />
+  </section>
 
-    <button type="submit">Enviar Mensajes</button>
-  </form>
+  <section class="tabla">
+    <table id="tablaBoletas">
+      <thead>
+        <tr>
+          <th>N° Boleta</th>
+          <th>Nombre</th>
+          <th>Teléfono</th>
+          <th>Estado</th>
+          <th>Valor</th>
+        </tr>
+      </thead>
+      <tbody id="tablaCuerpo">
+        <tr><td colspan="5">Cargando datos...</td></tr>
+      </tbody>
+    </table>
+  </section>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <footer>
+    <p>© 2025 — Creado por Sergio Díaz | Valor boleta: $50.000</p>
+  </footer>
+
   <script src="script.js"></script>
 </body>
 </html>
